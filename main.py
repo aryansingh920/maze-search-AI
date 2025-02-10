@@ -43,24 +43,25 @@ def main():
 
     frames = []  # List that will hold all frames of our DFS animation.
 
-    # Solve the maze using DFS (and record progress)
-    final_path, visited = solve_maze_dfs(
-        maze, entry, goal, cell_size, frames, record_every=5)
+    for name, function in functionObject.items():
+        final_path, visited = function(
+            maze, entry, goal, cell_size, frames, record_every=5)
 
-    if final_path is None:
-        print("No solution found!")
-    else:
-        print("Solution found!")
-        # Add extra frames at the end to “hold” the final solution on-screen (e.g. 2 seconds at 30 fps)
-        final_img = draw_maze_state(
-            maze, cell_size, visited, final_path[-1], final_path, entry, goal, final_path=final_path)
-        for _ in range(60):
-            frames.append(np.array(final_img))
+        if final_path is None:
+            print("No solution found!")
+        else:
+            print("Solution found!")
+            # Add extra frames at the end to “hold” the final solution on-screen (e.g. 2 seconds at 30 fps)
+            final_img = draw_maze_state(
+                maze, cell_size, visited, final_path[-1], final_path, entry, goal, final_path=final_path)
+            for _ in range(60):
+                frames.append(np.array(final_img))
 
-    # Create a video from the frames
-    output_video = "dfs_maze.mp4"
-    create_video(frames, output_video, fps=30)
-    print(f"DFS solution video saved as {output_video}")
+        # Create a video from the frames
+        output_video = f"{name}.mp4"
+        create_video(frames, output_video, fps=30)
+        print(f"{name} solution video saved as {output_video}")
+
 
     
     

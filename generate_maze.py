@@ -144,19 +144,3 @@ def save_maze_as_values(maze, filename="maze_values.csv", entry=None, goal=None)
             file.write(row_values + "\n")
 
     print(f"Maze values saved as {filename}")
-
-
-if __name__ == '__main__':
-    maze_width, maze_height = 51, 51
-    maze = generate_maze(maze_width, maze_height)
-
-    # Add entry and goal to the maze.
-    entry, goal = add_entry_and_goal(maze)
-
-    # Save the maze as an image.
-    save_maze_as_image(maze, cell_size=10,
-                       filename="maze.png", entry=entry, goal=goal)
-
-    # Save the maze grid as CSV values for further processing.
-    save_maze_as_values(maze, filename="maze_values.csv",
-                        entry=entry, goal=goal)

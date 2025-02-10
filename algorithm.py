@@ -278,3 +278,193 @@ def solve_maze_dijkstra(maze, entry, goal, cell_size, frames, record_every=5):
                 heapq.heappush(open_set, (new_cost, neighbor, new_path))
 
     return None, visited
+
+
+def mdp_value_iteration(maze, discount=0.9, threshold=1e-4):
+    """
+    Solves the maze as an MDP using Value Iteration.
+    
+    Maze representation:
+       - 1: Wall (impassable)
+       - 0: Free cell
+       - 2: Entry (free cell)
+       - 3: Goal (terminal state)
+       
+    Each move gives a reward of -1 (i.e. a cost of 1), and reaching the goal gives 0 reward.
+    
+    Parameters:
+       maze: 2D list of integers representing the maze.
+       discount: Discount factor (gamma) for future rewards.
+       threshold: Convergence threshold.
+       
+    Returns:
+       V: A dictionary mapping state (x, y) to its value.
+       policy: A dictionary mapping state (x, y) to the optimal action (dx, dy).
+               Terminal states (goal) will have a policy value of None.
+    """
+    height = len(maze)
+    width = len(maze[0])
+
+    # Define possible actions: up, right, down, left.
+    actions = [(0, -1), (1, 0), (0, 1), (-1, 0)]
+
+    def get_next_state(state, action):
+        """Given a state and an action, return the next state.
+        If the action would lead into a wall or off the grid, return the current state."""
+        x, y = state
+        dx, dy = action
+        new_x, new_y = x + dx, y + dy
+        if new_x < 0 or new_x >= width or new_y < 0 or new_y >= height or maze[new_y][new_x] == 1:
+            return state
+        return (new_x, new_y)
+
+    # Build state space (all non-wall cells) and record the goal states.
+    states = set()
+    goal_states = set()
+    for y in range(height):
+        for x in range(width):
+            if maze[y][x] != 1:
+                states.add((x, y))
+                if maze[y][x] == 3:
+                    goal_states.add((x, y))
+
+    # Initialize value function to 0 for all states.
+    V = {s: 0 for s in states}
+
+    # --- Value Iteration Loop ---
+    while True:
+        delta = 0
+        new_V = {}
+        for s in states:
+            # Terminal states keep a fixed value (0).
+            if s in goal_states:
+                new_V[s] = 0
+                continue
+            # Evaluate all actions for state s.
+            action_values = []
+            for a in actions:
+                s_next = get_next_state(s, a)
+                # Each move costs -1.
+                value = -1 + discount * V[s_next]
+                action_values.append(value)
+            best_value = max(action_values)
+            new_V[s] = best_value
+            delta = max(delta, abs(best_value - V[s]))
+        V = new_V
+        if delta < threshold:
+            break
+
+    # --- Derive Policy from the Computed Value Function ---
+    policy = {}
+    for s in states:
+        if s in goal_states:
+            policy[s] = None
+        else:
+            best_action = None
+            best_value = -float('inf')
+            for a in actions:
+                s_next = get_next_state(s, a)
+                value = -1 + discount * V[s_next]
+                if value > best_value:
+                    best_value = value
+                    best_action = a
+            policy[s] = best_action
+
+    return V, policy
+
+
+def mdp_policy_iteration(maze, discount=0.9, threshold=1e-4):
+    """
+    Solves the maze as an MDP using Policy Iteration.
+    
+    Maze representation:
+       - 1: Wall (impassable)
+       - 0: Free cell
+       - 2: Entry (free cell)
+       - 3: Goal (terminal state)
+       
+    Each move gives a reward of -1, and the goal is terminal (reward 0).
+    
+    Parameters:
+       maze: 2D list of integers representing the maze.
+       discount: Discount factor (gamma) for future rewards.
+       threshold: Convergence threshold used during policy evaluation.
+       
+    Returns:
+       policy: A dictionary mapping state (x, y) to the optimal action (dx, dy).
+               Terminal states (goal) will have a policy value of None.
+       V: A dictionary mapping state (x, y) to its value under the optimal policy.
+    """
+    height = len(maze)
+    width = len(maze[0])
+
+    actions = [(0, -1), (1, 0), (0, 1), (-1, 0)]
+
+    def get_next_state(state, action):
+        """Given a state and an action, return the next state (or the same state if the move is invalid)."""
+        x, y = state
+        dx, dy = action
+        new_x, new_y = x + dx, y + dy
+        if new_x < 0 or new_x >= width or new_y < 0 or new_y >= height or maze[new_y][new_x] == 1:
+            return state
+        return (new_x, new_y)
+
+    # Build state space and identify goal states.
+    states = set()
+    goal_states = set()
+    for y in range(height):
+        for x in range(width):
+            if maze[y][x] != 1:
+                states.add((x, y))
+                if maze[y][x] == 3:
+                    goal_states.add((x, y))
+
+    # --- Initialize Policy Arbitrarily ---
+    import random
+    policy = {}
+    for s in states:
+        if s in goal_states:
+            policy[s] = None
+        else:
+            policy[s] = random.choice(actions)
+
+    # Initialize value function.
+    V = {s: 0 for s in states}
+
+    # --- Policy Iteration Loop ---
+    policy_stable = False
+    while not policy_stable:
+        # Policy Evaluation: update V until convergence under the current policy.
+        while True:
+            delta = 0
+            new_V = {}
+            for s in states:
+                if s in goal_states or policy[s] is None:
+                    new_V[s] = 0
+                else:
+                    a = policy[s]
+                    s_next = get_next_state(s, a)
+                    new_V[s] = -1 + discount * V[s_next]
+                delta = max(delta, abs(new_V[s] - V[s]))
+            V = new_V
+            if delta < threshold:
+                break
+
+        # Policy Improvement: update the policy based on the current value function.
+        policy_stable = True
+        for s in states:
+            if s in goal_states:
+                continue
+            best_action = None
+            best_value = -float('inf')
+            for a in actions:
+                s_next = get_next_state(s, a)
+                value = -1 + discount * V[s_next]
+                if value > best_value:
+                    best_value = value
+                    best_action = a
+            if best_action != policy[s]:
+                policy[s] = best_action
+                policy_stable = False
+
+    return policy, V

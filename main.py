@@ -11,12 +11,14 @@ Relative Path: main.py
 import numpy as np
 from generate_maze import generate_maze,add_entry_and_goal,save_maze_as_image,save_maze_as_values
 from path_generator import load_maze_from_csv,draw_maze_state,create_video
-from algorithm import solve_maze_dfs,solve_maze_bfs,solve_maze_astar
+from algorithm import solve_maze_dfs, solve_maze_bfs, solve_maze_astar, solve_maze_dijkstra, solve_maze_greedy
 
 functionObject = {
     "dfs_maze": solve_maze_dfs,
     "bfs_maze": solve_maze_bfs,
-    "astar_maze": solve_maze_astar
+    "astar_maze": solve_maze_astar,
+    "dijkstra_maze": solve_maze_dijkstra,
+    "greedy_maze": solve_maze_greedy
 }
 
 def main():

@@ -11,6 +11,7 @@ Relative Path: algorithm.py
 from PIL import Image, ImageDraw
 import numpy as np
 from path_generator import draw_maze_state, get_neighbors
+import time
 
 # MDP
 REWARD_FOR_GOAL = 1000  # Large enough to offset a long path
@@ -609,7 +610,10 @@ def solve_maze_policy_iteration(maze, entry, goal, discount=DISCOUNT, theta=THET
 
 
 def solve_maze_value_iteration_wrapper(maze, entry, goal, cell_size, frames, record_every=5):
+    start_time = time.time()  # Record the start time
     policy, V, path = solve_maze_value_iteration(maze, entry, goal)
+    end_time = time.time()  # Record the end time
+    print(f"Value Iteration took {end_time - start_time:.2f} seconds")
 
     if path and path[-1] == goal:
         visited = set(path)
@@ -620,7 +624,10 @@ def solve_maze_value_iteration_wrapper(maze, entry, goal, cell_size, frames, rec
 
 
 def solve_maze_policy_iteration_wrapper(maze, entry, goal, cell_size, frames, record_every=5):
+    start_time = time.time()
     policy, V, path = solve_maze_policy_iteration(maze, entry, goal)
+    end_time = time.time()
+    print(f"Policy Iteration took {end_time - start_time:.2f} seconds")
 
     if path and path[-1] == goal:
         visited = set(path)

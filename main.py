@@ -17,9 +17,9 @@ from algorithm import (
 )
 
 functionObject = {
-    "dfs_maze": solve_maze_dfs,
-    "bfs_maze": solve_maze_bfs,
-    "astar_maze": solve_maze_astar,
+    # "dfs_maze": solve_maze_dfs,
+    # "bfs_maze": solve_maze_bfs,
+    # "astar_maze": solve_maze_astar,
     # "dijkstra_maze": solve_maze_dijkstra,
     # "greedy_maze": solve_maze_greedy,
     "mdp_value_iteration": solve_maze_value_iteration_wrapper,
@@ -28,7 +28,7 @@ functionObject = {
 
 
 def main():
-    maze_width, maze_height = 131, 131
+    maze_width, maze_height = 61, 61
     maze = generate_maze(maze_width, maze_height)
 
     # Add entry and goal to the maze.

@@ -1,3 +1,13 @@
+"""
+Created on 27/02/2025
+
+@author: Aryan
+
+Filename: generate_maze.py
+
+Relative Path: generate_maze.py
+"""
+
 import random
 from PIL import Image, ImageDraw
 
